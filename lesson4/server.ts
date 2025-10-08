@@ -19,6 +19,7 @@ const qstr = "SELECT temperature, humidity, datetime FROM atmo";
 const ustr = "INSERT INTO atmo (temperature, humidity, datetime) VALUES (?,?,?)";
 const devID = "wokwipico";
 
+//db.query("DELETE FROM atmo WHERE id=1");
 
 // Cleanup
 globalThis.onunload = (e: Event): void => {
@@ -72,7 +73,7 @@ Deno.serve({
 				// sen new sensordata to all open websockets
 				sockets.forEach(v=>
 					v.readyState === WebSocket.OPEN
-					&& v.send(JSON.stringify(data)) );
+					&& v.send(JSON.stringify([data])) );
 				return new Response("OK", {status:200});
 			} else
 				return new Response("ERR", {status:400});

@@ -3,9 +3,23 @@
 </head><body>
 	<h2>Temperature and humidity data</h2>
 	<div id="output"></div>
+	<svg id="a" width=800 height=300 style='border:1px solid black;'></svg>
 <script>
+const svg = document.getElementById("a");
+const l = (color,p0,p1) => {
+	var shape = document.createElementNS("http://www.w3.org/2000/svg", "line");
+	// Set any attributes as desired
+	shape.setAttribute("x1", p0[0]);
+	shape.setAttribute("x2", p1[0]);
+	shape.setAttribute("y1",  p0[1]);
+	shape.setAttribute("y2",  p1[1]);
+	shape.setAttribute("stroke", color);
+	// Add to a parent node; document.documentElement should be the root svg element.
+	// Acquiring a parent element with document.getElementById() would be safest.
+	svg.appendChild(shape);
+};
 
-const wsUri = "ws://janih.fi:3000/";
+const wsUri = "ws://localhost:3000/";
 const output = document.querySelector("#output");
 const websocket = new WebSocket(wsUri);
 
@@ -20,14 +34,28 @@ websocket.onopen = (e) => {
 websocket.onclose = (e) => {
    writeToScreen("DISCONNECTED");
 };
-
+let secperpixel = 15;
+let data = [];
+const x = v => Math.floor((v-data[0][2])/secperpixel);
+const y = v => 300-v*4;
 websocket.onmessage = (e) => {
    writeToScreen(`RECEIVED: ${e.data}`);
+	data = data.concat(JSON.parse(e.data));
+	svg.innerHTML = '';
+	svg.setAttribute('width', Math.floor((data[data.length-1][2] - data[0][2])/secperpixel));
+	data.reduce((a,v)=>{
+		console.log(a);console.log(v);
+		if (a && a.length) {
+			l('red',[x(a[2]),y(a[0])],[x(v[2]),y(v[0])]);
+			l('blue',[x(a[2]),y(a[1])],[x(v[2]),y(v[1])]);
+		}
+		return v;
+	},[]);
+	console.log(JSON.parse(e.data));
 };
 
 websocket.onerror = (e) => {
    writeToScreen(`ERROR: ${e.data}`);
 };
-
 </script>
 </body></html>
