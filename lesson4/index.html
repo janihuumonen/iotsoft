@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head>
+</head><body>
+	<h2>Temperature and humidity data</h2>
+	<div id="output"></div>
+<script>
+
+const wsUri = "ws://janih.fi:3000/";
+const output = document.querySelector("#output");
+const websocket = new WebSocket(wsUri);
+
+function writeToScreen(message) {
+   output.insertAdjacentHTML("afterbegin", `<p>${message}</p>`);
+}
+
+websocket.onopen = (e) => {
+   writeToScreen("CONNECTED");
+};
+
+websocket.onclose = (e) => {
+   writeToScreen("DISCONNECTED");
+};
+
+websocket.onmessage = (e) => {
+   writeToScreen(`RECEIVED: ${e.data}`);
+};
+
+websocket.onerror = (e) => {
+   writeToScreen(`ERROR: ${e.data}`);
+};
+
+</script>
+</body></html>
